@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Model Viewer</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    #c {
+      width: 100%;
+      height: 100%;
+      display: block;
+      position: relative;
+    }
+    #toggleBtn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1;
+      cursor: pointer;
+      padding: 10px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <button id="toggleBtn">Toggle Rotation</button>
+  <script src="https://threejsfundamentals.org/threejs/resources/threejs/r105/three.min.js"></script>
+  <script src="https://threejsfundamentals.org/threejs/resources/threejs/r105/js/controls/OrbitControls.js"></script>
+  <script src="https://threejsfundamentals.org/threejs/resources/threejs/r105/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.min.js"></script>
+  <script>
+    function main() {
+      const canvas = document.querySelector("#c");
+      const toggleBtn = document.querySelector("#toggleBtn");
+
+      const renderer = new THREE.WebGLRenderer({ canvas });
+
+      const camera = new THREE.PerspectiveCamera(45, 2, 0.1, 100);
+      camera.position.set(6, 5, 10);
+
+      const scene = new THREE.Scene();
+
+      // Add ambient light
+      const ambientLight = new THREE.AmbientLight(0x404040); // Dim white light
+      scene.add(ambientLight);
+
+      // Add HemisphereLight for overall illumination
+      const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x404040, 1);
+      scene.add(hemisphereLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+      directionalLight.position.set(0, 2, 2);
+      scene.add(directionalLight);
+
+      const gltfLoader = new THREE.GLTFLoader();
+      gltfLoader.load("./scene.gltf", (gltf) => {
+        const loadedObject = gltf.scene;
+        loadedObject.name = "targetedObject"; // Assign a name to the targeted object
+        scene.add(loadedObject);
+
+        // Find the object by name recursively
+        const targetedObject = findObjectByNameRecursive(loadedObject, "barrier3001_barrier3_0");
+        if (targetedObject) {
+          console.log("Object found:", targetedObject.name);
+
+          let rotateObject = false;
+
+          toggleBtn.addEventListener("click", () => {
+            rotateObject = !rotateObject;
+
+            // Use Tween.js for smooth rotation
+            const targetRotation = rotateObject ? -Math.PI / 2 : 0;
+            new TWEEN.Tween(targetedObject.rotation)
+              .to({ y: targetRotation }, 1000)
+              .easing(TWEEN.Easing.Quadratic.InOut)
+              .start();
+          });
+
+          const controls = new THREE.OrbitControls(camera, renderer.domElement);
+          controls.target.set(0, 0, 0);
+          controls.update();
+
+          function resizeRendererToDisplaySize() {
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+            const needResize = canvas.width !== width || canvas.height !== height;
+            if (needResize) {
+              renderer.setSize(width, height, false);
+              camera.aspect = width / height;
+              camera.updateProjectionMatrix();
+            }
+            return needResize;
+          }
+
+          function render() {
+            if (resizeRendererToDisplaySize()) {
+              const width = canvas.clientWidth;
+              const height = canvas.clientHeight;
+              camera.aspect = width / height;
+              camera.updateProjectionMatrix();
+            }
+            renderer.render(scene, camera);
+            requestAnimationFrame(render);
+            TWEEN.update(); // Update Tween.js
+          }
+          render();
+        } else {
+          console.warn("Object not found with the specified name.");
+        }
+      });
+    }
+
+    function findObjectByNameRecursive(object, name) {
+      if (object.name === name) {
+        return object;
+      } else if (object.children.length > 0) {
+        for (const child of object.children) {
+          const foundObject = findObjectByNameRecursive(child, name);
+          if (foundObject !== null) {
+            return foundObject;
+          }
+        }
+      }
+      return null;
+    }
+
+    main();
+  </script>
+</body>
+</html>

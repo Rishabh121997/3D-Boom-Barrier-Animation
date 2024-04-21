@@ -1,0 +1,12 @@
+Model Information:
+* title:	Barrier
+* source:	https://sketchfab.com/3d-models/barrier-f61862267fdf489386aeadae20754229
+* author:	TridentCorp (https://sketchfab.com/tridentcorp)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Barrier" (https://sketchfab.com/3d-models/barrier-f61862267fdf489386aeadae20754229) by TridentCorp (https://sketchfab.com/tridentcorp) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+barrier3.001_barriew
